@@ -4,6 +4,7 @@
 const fs = require('fs');
 const TelegramBot = require('node-telegram-bot-api');
 const cloudinary = require('cloudinary');
+const https = require('https');
 
 /* Authentication data */
 let auth = JSON.parse(fs.readFileSync('src/auth.json', 'utf8'));
@@ -19,6 +20,9 @@ let telegramToken = auth.telegramToken;
 let cloudinaryCloudName = auth.cloudinaryCloudName;
 let cloudinaryApiKey = auth.cloudinaryApiKey;
 let cloudinaryApiSecret = auth.cloudinaryApiSecret;
+
+/* Currency rate api url */
+let currencyRateUrl = auth.currencyRateUrl;
 
 
 /* API init */
@@ -91,6 +95,26 @@ let sessions = {
                 break;
             case '/getdictionary':
                 bot.sendMessage(chatId, 'Сейчас в штанах: ' + dictionary.join(', '));
+                break;
+            case '/getcurrencyrate':
+            case '/getcurrencyrate@inpants_bot':
+                let data = [];
+                let message = `Держи, ${userName}:\n\n`;
+
+                https.get(currencyRateUrl, (res) => {
+                    res.on('data', (chunk) => {
+                        data.push(chunk);
+                    }).on('end', function() {
+                        data = JSON.parse(Buffer.concat(data).toString()).query.results.rate;
+                        data.forEach((val) => {
+                            switch (val.id) {
+                                case 'USDRUB': message += 'Долла: ' + val.Rate + '\n'; break;
+                                case 'EURRUB': message += 'Евра: ' + val.Rate + '\n'; break;
+                            }
+                        });
+                        bot.sendMessage(chatId, message);
+                    });
+                });
                 break;
             case '/addtopants':
             case '/addtopants@inpants_bot':
