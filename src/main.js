@@ -4,7 +4,7 @@
 const fs = require('fs');
 const TelegramBot = require('node-telegram-bot-api');
 const cloudinary = require('cloudinary');
-const https = require('https');
+const http = require('http');
 
 /* Authentication data */
 let auth = JSON.parse(fs.readFileSync('src/auth.json', 'utf8'));
@@ -101,17 +101,13 @@ let sessions = {
                 let data = [];
                 let message = `Держи, ${userName}:\n\n`;
 
-                https.get(currencyRateUrl, (res) => {
+                http.get(currencyRateUrl, (res) => {
                     res.on('data', (chunk) => {
                         data.push(chunk);
                     }).on('end', function() {
-                        data = JSON.parse(Buffer.concat(data).toString()).query.results.rate;
-                        data.forEach((val) => {
-                            switch (val.id) {
-                                case 'USDRUB': message += 'Долла: ' + val.Rate + '\n'; break;
-                                case 'EURRUB': message += 'Евра: ' + val.Rate + '\n'; break;
-                            }
-                        });
+                        let rates = JSON.parse(Buffer.concat(data).toString()).rates;
+                        message += 'Долла: ' + (1 / rates.USD).toFixed(2) + '\n';
+                        message += 'Евра: ' + (1 / rates.EUR).toFixed(2) + '\n';
                         bot.sendMessage(chatId, message);
                     });
                 });
