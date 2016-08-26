@@ -112,6 +112,18 @@ let sessions = {
                     });
                 });
                 break;
+            case '/getpantsweight':
+            case '/getpantsweight@inpants_bot':
+                let length = dictionary.length;
+                let rem = length % 10;
+                let msg = `${length} `;
+
+                if (rem === 1) { msg += 'слово' }
+                else if (rem >= 2 && rem <= 4) { msg += 'слова' }
+                else if (rem >= 5 && rem <= 9 || rem === 0) { msg += 'слов' }
+
+                bot.sendMessage(chatId, `В штанах обнаружено ${msg}`);
+                break;
             case '/addtopants':
             case '/addtopants@inpants_bot':
                 bot.sendMessage(chatId, `Что добавить в штаны, ${_userName}?`);
