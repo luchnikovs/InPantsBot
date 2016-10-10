@@ -272,6 +272,38 @@ let sessions = {
         return resultType;
     }
 
+    /** Возвращает случайное время из указанного диапазона
+     *  @param {string} [start] - время начала диапазона (в формате hh:mm)
+     *  @param {string} [end] - время окончания диапазона (в формате hh:mm)
+     *  @return {timestamp}
+     */
+    function getTimeFromRange(start, end) {
+        // Количество минут от 00:00
+        let startRangeMinutes = start.split(':')[0] * 60 + +start.split(':')[1];
+        let endRangeMinutes = end.split(':')[0] * 60 + +end.split(':')[1];
+
+        let date = new Date().setHours(0, 0, 0, 0);
+        let randomTime = Math.floor(Math.random() * (endRangeMinutes - startRangeMinutes) + 480) * 6e4;
+        
+        return date+randomTime;
+    }
+
+    /** Возвращает случайного пользователя из списка users
+     */
+    function getRandomUser() {
+        let usersIds = Object.keys(users);
+        let randomUser = users[usersIds[Math.floor(Math.random() * (usersIds.length + 1))]];
+
+        return randomUser;
+    }
+
+    /** Запрашивает фото у пользователя чата
+     *  @param {number} [chatId] - id чата
+     */
+    function requestPhoto(chatId) {
+        bot.sendMessage(chatId, `${randomUser}, чего делаешь сейчас? Давай фотку!`);
+    }
+
     /** Добавляет в список ожидания команды пользователя, от которого бот ожидает действий
      *  @param {string} [command] - команда бота
      *  @param {number} [userId] - ID пользователя
