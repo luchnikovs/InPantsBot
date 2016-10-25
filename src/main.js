@@ -37,11 +37,25 @@ let sessions = {
     removeFromPants: []
 };
 
+let lastMsg = 0; // timeStamp
+
 
   /* Controller */
 
+    function init() {
+        setInterval(() => {
+            let isMoreThreeHour = Math.floor((Date.now() - lastMsg) / 1000) / 3600 >= 3;
+            if (isMoreThreeHour) {
+                const userName = getRandomUser();
+                lastMsg = Date.now();
+
+                bot.sendMessage(auth.friendChat, `Че как сучары? Че вы молчите? ${userName}, хоть ты бы че сказал.`);
+            }
+        }, 6e4)
+    }
+    init();
+
     bot.on('message', function (msg) {
-        console.log(msg);
 
         let chatId = msg.chat.id;
         let userId = msg.from.id;
@@ -289,6 +303,7 @@ let sessions = {
     }
 
     /** Возвращает случайного пользователя из списка users
+     *  @return {string} - Имя пользователя
      */
     function getRandomUser() {
         let usersIds = Object.keys(users);
