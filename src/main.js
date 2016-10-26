@@ -42,23 +42,25 @@ let lastMsg = 0; // timeStamp
 
   /* Controller */
 
-    function init() {
-        setInterval(() => {
-            let isMoreThreeHour = Math.floor((Date.now() - lastMsg) / 1000) / 3600 >= 3;
-            if (isMoreThreeHour) {
-                const userName = getRandomUser();
-                lastMsg = Date.now();
+function init() {
+    setInterval(() => {
+        let isMoreThreeHour = Math.floor((Date.now() - lastMsg) / 1000) / 3600 >= 3;
+        // время указанно в таймзоне +0 (для Москвы +3 к указанным значениям)
+        if (isMoreThreeHour && new Date().getHours() >= 5 && new Date().getHours() <= 20) {
+            const userName = getRandomUser();
 
-                bot.sendMessage(auth.friendChat, `Че как сучары? Че вы молчите? ${userName}, хоть ты бы че сказал.`);
-            }
-        }, 6e4)
-    }
-    init();
+            bot.sendMessage(auth.friendChat, `Че как сучары? Че вы молчите? ${userName}, хоть ты бы че сказал.`);
+        }
+    }, 6e4);
+}
+init();
 
     bot.on('message', function (msg) {
 
         let chatId = msg.chat.id;
         let userId = msg.from.id;
+
+        lastMsg = new Date();
 
         switch (getMsgType(msg)) {
             case 'text':
