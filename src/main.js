@@ -37,30 +37,45 @@ let sessions = {
     removeFromPants: []
 };
 
-let lastMsg = 0; // timeStamp
+let lastMsg = Date.now();
+let silenceLvl = 1;
 
-
-  /* Controller */
-
-function init() {
+    
+    /* Controller */
+    
     setInterval(() => {
-        let isMoreThreeHour = Math.floor((Date.now() - lastMsg) / 1000) / 3600 >= 3;
-        // время указанно в таймзоне +0 (для Москвы +3 к указанным значениям)
-        if (isMoreThreeHour && new Date().getHours() >= 5 && new Date().getHours() <= 20) {
-            const userName = getRandomUser();
-
-            bot.sendMessage(auth.friendChat, `Че как сучары? Че вы молчите? ${userName}, хоть ты бы че сказал.`);
+        let sinceLastUpdate = (Date.now() - lastMsg) / 36e5;
+        if (sinceLastUpdate >= 3 / silenceLvl && silenceLvl <= 3) {
+    
+            // время указанно в таймзоне +0 (для Москвы +3 к указанным значениям)
+            if (new Date().getHours() >= 5 && new Date().getHours() <= 20) {
+                const userName = getRandomUser();
+    
+                switch (silenceLvl) {
+                    case 1:
+                        bot.sendMessage(friendsChatId, `Че как сучары? Че вы молчите? ${userName}, хоть ты бы че сказал.`); break;
+                    case 2:
+                        bot.sendMessage(friendsChatId, `То есть вы так и будете да не говорить нихера?`); break;
+                    case 3:
+                        bot.sendMessage(friendsChatId, `Ого вы`); break;
+                    default:
+                }
+    
+            }
+            lastMsg = Date.now();
+            silenceLvl += 1;
         }
-    }, 6e4);
-}
-init();
-
+    }, 1000);
+    
     bot.on('message', function (msg) {
-
         let chatId = msg.chat.id;
         let userId = msg.from.id;
-
-        lastMsg = new Date();
+    
+        if (msg.chat.id == friendsChatId) {
+            lastMsg = Date.now();
+            silenceLvl = 1;
+        }
+    
 
         switch (getMsgType(msg)) {
             case 'text':
